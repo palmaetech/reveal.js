@@ -328,7 +328,7 @@
 	function initialize( options ) {
 
 		// Make sure we only initialize once
-		if( initialized === true ) return;
+		//if( initialized === true ) return;
 
 		initialized = true;
 
@@ -358,8 +358,33 @@
 		}
 
 		// Cache references to key DOM elements
-		dom.wrapper = document.querySelector( '.reveal' );
-		dom.slides = document.querySelector( '.reveal .slides' );
+		if(options.target){
+			dom.wrapper = document.querySelector( options.target );
+			dom.slides = document.querySelector( options.target +' .slides' );
+		}else{
+			var candidates = document.querySelectorAll('.reveal');
+			for(var i=0;i<candidates.length;i++){
+				var candidate = candidates[i];
+				if(!candidate.classList.contains('reveal-ignore')){
+					dom.wrapper = candidate;
+
+					var eleQueue = [candidate];
+					while(eleQueue.length>0){
+						var curEl = eleQueue.splice(0,1)[0];
+						if(curEl.classList && curEl.classList.contains('slides')){
+							dom.slides = curEl;
+							break;
+						}
+
+						for(var j=0;j<curEl.children.length;j++){
+							eleQueue.push(curEl.children[j]);
+						}
+					}
+
+					break;
+				}
+			}
+		}
 
 		// Force a layout when the whole page, incl fonts, has loaded
 		window.addEventListener( 'load', layout, false );
